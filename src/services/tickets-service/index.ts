@@ -1,39 +1,61 @@
+import { invalidDataError, notFoundError } from '@/errors';
+import { prisma } from '@/config';
+
 async function getTicketType(){
-
+    return prisma.ticketType.findMany(); 
 }
 
-async function getTicket(){
-
+async function getTicket(userId:number){
+    if (!userId) throw notFoundError();
+    const enrollment = await prisma.enrollment.findFirst({
+        where: { userId }
+    });
+    if (!enrollment) throw notFoundError();
+    const enrollmentId = enrollment.id;
+    const ticket = await prisma.ticket.findFirst({
+        where: { enrollmentId }
+    });
+    if (!ticket) throw notFoundError();
+    const id = ticket.ticketTypeId;
+    const ticketType = await prisma.ticketType.findFirst({
+        where: { id }
+    });
+    return {
+        ticket,
+        TicketType:{ticketType}
+      };
+}
+type newTickets = {
+    ticketTypeId: number;
+    enrollmentId: number;
+    status: String
+}
+async function createTicket(ticket: number, userId: number): Promise<newTickets>{
+    const ticketType = await prisma.ticketType.findFirst({
+        where: {
+            id: ticket
+        }
+    })
+    if (!ticketType) throw notFoundError();
+    const enrollment = await prisma.enrollment.findFirst({
+        where: { userId }
+    });
+    if (!enrollment) throw notFoundError();
+    const newTicket = {
+        ticketTypeId: ticketType.id,
+        enrollmentId: enrollment.id,
+        status: "RESERVED"
+    };
+    return await prisma.ticket.create({
+        data: newTicket
+    })
 }
 
-async function createTicket(){
-
-}
-
-const ticketsService = {
+const ticketService = {
     getTicketType,
     getTicket,
-    createTicket
+    createTicket,
   };
   
-export default ticketsService;
+export default ticketService;
 
-/* async function getAddressFromCEP(cep: string): Promise<AddressEnrollment> {
-    const result = await request.get(`${process.env.VIA_CEP_API}/${cep}/json/`);
-  
-    if (!result.data || result.data.erro) {
-      throw notFoundError();
-    }
-  
-    const { bairro, localidade, uf, complemento, logradouro } = result.data;
-  
-    const address: AddressEnrollment = {
-      bairro,
-      cidade: localidade,
-      uf,
-      complemento,
-      logradouro,
-    };
-  
-    return address;
-} */
