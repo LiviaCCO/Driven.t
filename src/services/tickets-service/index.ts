@@ -1,5 +1,6 @@
 import { invalidDataError, notFoundError } from '@/errors';
 import { prisma } from '@/config';
+import {TicketStatus} from '@prisma/client';
 
 async function getTicketType(){
     return prisma.ticketType.findMany(); 
@@ -20,15 +21,33 @@ async function getTicket(userId:number){
     const ticketType = await prisma.ticketType.findFirst({
         where: { id }
     });
-    return {
+    //Resposta esperada:
+    /* {
+        id: number,
+        status: string, //RESERVED | PAID
+        ticketTypeId: number,
+        enrollmentId: number,
+        TicketType: {
+            id: number,
+            name: string,
+            price: number,
+            isRemote: boolean,
+            includesHotel: boolean,
+            createdAt: Date,
+            updatedAt: Date,
+        },
+        createdAt: Date,
+        updatedAt: Date,
+    } */
+    return { 
         ticket,
         TicketType:{ticketType}
-      };
+    };
 }
 type newTickets = {
     ticketTypeId: number;
     enrollmentId: number;
-    status: String
+    status: String;
 }
 async function createTicket(ticket: number, userId: number): Promise<newTickets>{
     const ticketType = await prisma.ticketType.findFirst({
@@ -44,11 +63,12 @@ async function createTicket(ticket: number, userId: number): Promise<newTickets>
     const newTicket = {
         ticketTypeId: ticketType.id,
         enrollmentId: enrollment.id,
-        status: "RESERVED"
+        status: TicketStatus.RESERVED,
     };
+    console.log(newTicket)
     return await prisma.ticket.create({
-        data: newTicket
-    })
+        data: newTicket,
+    });
 }
 
 const ticketService = {
