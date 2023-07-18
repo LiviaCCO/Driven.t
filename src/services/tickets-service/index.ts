@@ -14,13 +14,16 @@ async function getTicket(userId:number){
     if (!enrollment) throw notFoundError();
     const enrollmentId = enrollment.id;
     const ticket = await prisma.ticket.findFirst({
-        where: { enrollmentId }
+        where: { enrollmentId },
+        include: {
+            TicketType: true
+        }
     });
     if (!ticket) throw notFoundError();
-    const id = ticket.ticketTypeId;
+    /* const id = ticket.ticketTypeId;
     const ticketType = await prisma.ticketType.findFirst({
         where: { id }
-    });
+    }); */
     //Resposta esperada:
     /* {
         id: number,
@@ -39,10 +42,7 @@ async function getTicket(userId:number){
         createdAt: Date,
         updatedAt: Date,
     } */
-    return { 
-        ticket,
-        TicketType:{ticketType}
-    };
+    return ticket;
 }
 type newTickets = {
     ticketTypeId: number;
@@ -65,10 +65,10 @@ async function createTicket(ticket: number, userId: number): Promise<newTickets>
         enrollmentId: enrollment.id,
         status: TicketStatus.RESERVED,
     };
-    console.log(newTicket)
-    return await prisma.ticket.create({
-        data: newTicket,
+    const createdTicket = await prisma.ticket.create({
+        data: newTicket
     });
+    return createdTicket;
 }
 
 const ticketService = {

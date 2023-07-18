@@ -11,7 +11,7 @@ type ticketPayment = {
 	}
 }
 
-export const ticketPaymentSchema = Joi.object<ticketPayment>({
+/* export const ticketPaymentSchema = Joi.object<ticketPayment>({
     ticketId: Joi.number().required(),
     cardData: {
 		issuer: Joi.string().required(),
@@ -20,4 +20,9 @@ export const ticketPaymentSchema = Joi.object<ticketPayment>({
     expirationDate: Joi.date().required(),
     cvv: Joi.number().required()
 	}
+}); */
+
+export const ticketPaymentSchema = Joi.object<ticketPayment>({
+  ticketId: Joi.number().required(),
+  cardData: Joi.object().required()
 });

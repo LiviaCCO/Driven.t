@@ -8,7 +8,6 @@ export async function getTicketType(req: AuthenticatedRequest, res: Response) {
 
     try {
       const ticketType = await ticketService.getTicketType();
-  
       return res.status(httpStatus.OK).send(ticketType);
     } catch (error) {
       return res.sendStatus(httpStatus.NO_CONTENT);

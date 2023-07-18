@@ -1,9 +1,10 @@
 import { invalidDataError, notFoundError } from '@/errors';
 import { prisma } from '@/config';
+import ticketService from '../tickets-service';
 
 async function getTicketPayment(userId:number, ticketId: number){
-    if (!userId) throw notFoundError();
-    if (!ticketId) throw notFoundError();
+    //if (!userId) throw notFoundError();
+    //if (!ticketId) throw notFoundError();
     const payment = await prisma.payment.findFirst({
         where: { ticketId }
     });
@@ -40,27 +41,32 @@ type newPayment = {
 }
 
 async function createTicketPayment(ticketId: number, cardData: card, userId: number): Promise<newPayment>{
-    const ticketType = await prisma.ticketType.findFirst({
+    /* const ticketType = await prisma.ticketType.findFirst({
         where: {
             id: ticket
         }
+    }) */
+    const ticketPay = await prisma.ticket.findFirst({
+        where: {
+            id: ticketId
+        }
     })
-    if (!ticketType) throw notFoundError();
+    if (!ticketPay) throw notFoundError();
     const enrollment = await prisma.enrollment.findFirst({
         where: { userId }
     });
     if (!enrollment) throw notFoundError();
-    const priceTicket = (await ticketService.getTicket(userId)).ticketType.price;
+    const priceTicket = (await ticketService.getTicket(userId)).TicketType.price;
     const newPay = {
         ticketId,
         value: priceTicket,
-        cardIssuer: card.issuer,
-        cardLastDigits: card.number.toString.slice(-4)
+        cardIssuer: cardData.issuer,
+        cardLastDigits: cardData.number.toString().slice(-4),
     };
     const paidTicket = await prisma.payment.create({
         data: newPay
     });
-    const paidTicket = await prisma.ticket.update({
+    await prisma.ticket.update({
         where: {id: ticketId},
         data: {status: "PAID"}
     });

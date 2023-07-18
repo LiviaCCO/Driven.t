@@ -13,21 +13,22 @@ export async function getTicketPayment(req: AuthenticatedRequest, res: Response)
         return res.sendStatus(httpStatus.BAD_REQUEST);
     }
     try {
-        //quando o ticketId não está associado ao usuario
+        /* //quando o ticketId não está associado ao usuario
         const findTicket = await ticketService.getTicket(userId);
-        console.log(findTicket)
         ///////
-
-/*         if(findTicket.TicketTypeId!==ticketId){
+        if(findTicket.ticketTypeId!==ticketId){
             return res.sendStatus(httpStatus.UNAUTHORIZED);
-        }
+        } */
         const payment = await ticketPaymentService.getTicketPayment(userId, ticketId);
         //quando o ticketId não existe
         if(!payment){
             return res.sendStatus(httpStatus.NOT_FOUND);
         }
-        return res.status(httpStatus.OK).send(payment); */
-    } catch (error) {
+        return res.status(httpStatus.OK).send(payment); 
+    } catch (err) {
+        if (err.name === 'UnauthorizedError') {
+            return res.sendStatus(httpStatus.UNAUTHORIZED);
+        }
       return res.sendStatus(httpStatus.NO_CONTENT);
     }
 }
@@ -62,12 +63,15 @@ export async function postTicketPayment (req: AuthenticatedRequest, res: Respons
         } */
         //const findTicket = await ticketService.getTicket(userId);
         //////////////////////////////////
-       /*  if(findTicket.TicketTypeId!==ticketId){
+        /* if(findTicket.ticketTypeId !==ticketId){
+            return res.sendStatus(httpStatus.UNAUTHORIZED);
+        } */
+        const paidTicket = await ticketPaymentService.createTicketPayment(ticketId, cardData, userId);
+        return res.status(httpStatus.OK).send(paidTicket); 
+      } catch (err) {
+        if (err.name === 'UnauthorizedError') {
             return res.sendStatus(httpStatus.UNAUTHORIZED);
         }
-        const paidTicket = await ticketPaymentService.createTicketPayment(ticketId, cardData, userId);
-        return res.status(httpStatus.OK).send(paidTicket); */
-      } catch (error) {
         return res.sendStatus(httpStatus.BAD_REQUEST);
       }
 }

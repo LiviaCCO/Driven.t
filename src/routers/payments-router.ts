@@ -3,11 +3,12 @@ import { authenticateToken, validateBody } from '@/middlewares';
 import { getTicketPayment, postTicketPayment } from '@/controllers'; 
 import { ticketPaymentSchema } from '@/schemas';   
 
-const payments = Router();
+const paymentsRouter = Router();
 
-payments
+paymentsRouter
   .all('/*', authenticateToken)
-  .get('/payments?ticketId=1', getTicketPayment)
-  .post('/payments/process', validateBody(ticketPaymentSchema), postTicketPayment);
+  .get('/', getTicketPayment)
+  .post('/process', validateBody(ticketPaymentSchema), postTicketPayment);
  
-export { payments };
+//export default paymentsRouter;
+export {paymentsRouter};
