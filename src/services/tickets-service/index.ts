@@ -60,13 +60,13 @@ async function createTicket(ticketTypeId: number, userId: number): Promise<newTi
         where: { userId }
     });
     if (!enrollment) throw notFoundError();
-    const newTicket = {
+    const newTicket: newTickets = {
         ticketTypeId: ticketType.id,
         enrollmentId: enrollment.id,
         status: TicketStatus.RESERVED,
     };
     const createdTicket = await prisma.ticket.create({
-        data: newTicket
+        data: newTicket,
     });
     return createdTicket;
 }
