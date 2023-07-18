@@ -49,10 +49,10 @@ type newTickets = {
     enrollmentId: number;
     status: String;
 }
-async function createTicket(ticket: number, userId: number): Promise<newTickets>{
+async function createTicket(ticketTypeId: number, userId: number): Promise<newTickets>{
     const ticketType = await prisma.ticketType.findFirst({
         where: {
-            id: ticket
+            id: ticketTypeId
         }
     })
     if (!ticketType) throw notFoundError();

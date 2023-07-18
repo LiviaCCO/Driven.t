@@ -23,24 +23,24 @@ export async function getTicket(req: AuthenticatedRequest, res: Response) {
         return res.sendStatus(httpStatus.NOT_FOUND);
       }
       return res.status(httpStatus.OK).send(ticket);
-    } catch (error) {
-      return res.sendStatus(httpStatus.NO_CONTENT);
+    } catch (err) {
+        return res.sendStatus(httpStatus.NO_CONTENT);
     }
 }
 export async function postTicket(req: AuthenticatedRequest, res: Response) {
-    const ticket = req.body;
-    const userId = req.userId;
+    const {ticketTypeId} = req.body;
+    const {userId} = req;
     
     try {
         if(!userId){
-            return res.sendStatus(httpStatus.NOT_FOUND);
+          return res.sendStatus(httpStatus.NOT_FOUND);
         }
-        const newTicket = await ticketService.createTicket(ticket, userId);
-        if(!newTicket){
-            return res.sendStatus(httpStatus.BAD_REQUEST);
-        }
+        if(!ticketTypeId){
+          return res.sendStatus(httpStatus.BAD_REQUEST);
+        } 
+        const newTicket = await ticketService.createTicket(ticketTypeId, userId);
         return res.status(httpStatus.CREATED).send(newTicket);
-      } catch (error) {
+      } catch (err) {
         return res.sendStatus(httpStatus.BAD_REQUEST);
       }
 }
